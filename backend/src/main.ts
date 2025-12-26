@@ -10,11 +10,11 @@ async function bootstrap() {
   app.enableCors({
     origin: (origin, callback) => {
       console.log('Incoming origin:', origin, '| Allowed:', corsOrigin);
-      // Allow if origin matches or if no origin (same-origin/non-browser)
       if (!origin || origin === corsOrigin) {
-        callback(null, true);
+        callback(null, origin || true);
       } else {
-        callback(null, false);
+        console.log('CORS blocked:', origin);
+        callback(new Error('Not allowed by CORS'));
       }
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
