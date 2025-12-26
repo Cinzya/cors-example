@@ -8,7 +8,15 @@ async function bootstrap() {
   console.log('CORS_ORIGIN:', corsOrigin);
 
   app.enableCors({
-    origin: corsOrigin || true,
+    origin: (origin, callback) => {
+      console.log('Incoming origin:', origin, '| Allowed:', corsOrigin);
+      // Allow if origin matches or if no origin (same-origin/non-browser)
+      if (!origin || origin === corsOrigin) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
