@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CORS Test</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+    button { margin: 0.25rem; padding: 0.5rem 1rem; cursor: pointer; }
+    pre { background: #f4f4f4; padding: 1rem; overflow-x: auto; }
+    .success { color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h1>CORS Test Client</h1>
+  <p>API URL: <code id="apiUrl">{{API_URL}}</code></p>
+
+  <h2>Test Endpoints</h2>
+  <div>
+    <button onclick="testRequest('GET', '/test')">GET /test</button>
+    <button onclick="testRequest('POST', '/test', { foo: 'bar' })">POST /test</button>
+    <button onclick="testRequest('PUT', '/test', { foo: 'bar' })">PUT /test</button>
+    <button onclick="testRequest('PATCH', '/test', { foo: 'bar' })">PATCH /test</button>
+    <button onclick="testRequest('DELETE', '/test')">DELETE /test</button>
+    <button onclick="testAuthRequest()">GET /auth-test (with header)</button>
+  </div>
+
+  <h2>Response</h2>
+  <pre id="output">Click a button to test...</pre>
+
+  <script>
+    const API_URL = '{{API_URL}}';
+    document.getElementById('apiUrl').textContent = API_URL;
+
+    async function testRequest(method, path, body = null) {
+      const output = document.getElementById('output');
+      output.className = '';
+      output.textContent = `${method} ${path}...\n`;
+
+      try {
+        const options = {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+        };
+        if (body) options.body = JSON.stringify(body);
+
+        const res = await fetch(API_URL + path, options);
+        const data = await res.json();
+        output.className = 'success';
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        output.className = 'error';
+        output.textContent = `Error: ${err.message}\n\nCheck browser console for CORS details.`;
+      }
+    }
+
+    async function testAuthRequest() {
+      const output = document.getElementById('output');
+      output.className = '';
+      output.textContent = 'GET /auth-test with Authorization header...\n';
+
+      try {
+        const res = await fetch(API_URL + '/auth-test', {
+          headers: {
+            'Authorization': 'Bearer test-token-123',
+          },
+        });
+        const data = await res.json();
+        output.className = 'success';
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        output.className = 'error';
+        output.textContent = `Error: ${err.message}\n\nCheck browser console for CORS details.`;
+      }
+    }
+  </script>
+</body>
+</html>
